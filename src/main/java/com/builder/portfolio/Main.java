@@ -14,11 +14,10 @@ import com.builder.portfolio.util.ConsoleInput;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Entry point for the Builder Portfolio Management System. The class wires together the service
- * layer and controllers and relies on {@link ConsoleInput} for user interaction to keep
- * responsibilities tidy.
- */
+// Entry point for the Builder Portfolio Management System.
+// The class wires together the service layer
+// The controllers and relies on ConsoleInput for user interaction to keep responsibilities tidy
+
 public class Main {
     private static final Logger LOGGER = Logger.getLogger(Main.class.getName());
 

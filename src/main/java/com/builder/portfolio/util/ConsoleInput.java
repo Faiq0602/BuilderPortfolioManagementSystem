@@ -7,11 +7,9 @@ import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-/**
- * Centralised helper for all console input so that the application does not keep creating new
- * {@link Scanner} instances. The class also adds gentle validation for numeric inputs and attempts
- * to mask passwords when the environment provides a real console.
- */
+//* Centralised helper for all console input so that the application does not keep creating new Scanner instances.
+// The class also adds gentle validation for numeric inputs and attempts to mask passwords when the environment provides a real console.
+
 public final class ConsoleInput {
     private static final Logger LOGGER = Logger.getLogger(ConsoleInput.class.getName());
     private static final Scanner SCANNER = new Scanner(System.in);
@@ -19,12 +17,8 @@ public final class ConsoleInput {
     private ConsoleInput() {
     }
 
-    /**
-     * Reads a non-null line of text from the user after showing the provided prompt.
-     *
-     * @param prompt message shown to the user
-     * @return the entered line (may be empty)
-     */
+    // Reads a non-null line of text from the user after showing the provided prompt.
+
     public static String readLine(String prompt) {
         System.out.print(prompt);
         String value = SCANNER.nextLine();
@@ -32,12 +26,8 @@ public final class ConsoleInput {
         return value;
     }
 
-    /**
-     * Reads an integer from the console, re-prompting the user until a valid number is provided.
-     *
-     * @param prompt message shown to the user
-     * @return parsed integer
-     */
+    // Reads an integer from the console, re-prompting the user until a valid number is provided.
+
     public static int readInt(String prompt) {
         while (true) {
             String input = readLine(prompt);
@@ -50,12 +40,8 @@ public final class ConsoleInput {
         }
     }
 
-    /**
-     * Reads a double from the console, ensuring only valid numeric values are accepted.
-     *
-     * @param prompt message shown to the user
-     * @return parsed double
-     */
+    // Reads a double from the console, ensuring only valid numeric values are accepted.
+
     public static double readDouble(String prompt) {
         while (true) {
             String input = readLine(prompt);
@@ -72,10 +58,8 @@ public final class ConsoleInput {
      * Reads a password while trying to hide the characters typed on the console. When the
      * application runs without a genuine console (for example inside an IDE), the password cannot
      * be hidden; in that case the method warns once and falls back to plain text entry.
-     *
-     * @param prompt message shown to the user
-     * @return the password as a string (never null)
      */
+
     public static String readPassword(String prompt) {
         Console console = System.console();
         if (console != null) {
@@ -87,7 +71,7 @@ public final class ConsoleInput {
         return readLine(prompt);
     }
 
-    // Class for taking input from the console and preventing multiple object creation of Scanner class
+
     public static LocalDate readOptionalDate(String prompt) {
         String input = readLine(prompt);
         if (input == null || input.isBlank()) {

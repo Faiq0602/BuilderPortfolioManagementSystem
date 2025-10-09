@@ -9,6 +9,7 @@ import java.util.logging.Logger;
 public final class DBConnectionUtil {
     private static final Logger LOGGER = Logger.getLogger(DBConnectionUtil.class.getName());
 
+
     private static final String URL = "jdbc:postgresql://localhost:5432/builder_portfolio_db";
     private static final String USERNAME = "postgres";
     private static final String PASSWORD = "faique";
