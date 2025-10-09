@@ -20,7 +20,6 @@ It centralizes projects, budgets, timelines, and document metadata using a clean
 12. [Notes & Limitations](#notes--limitations)  
 13. [Roadmap](#roadmap)  
 14. [Contributing](#contributing)  
-15. [License](#license)
 
 ---
 
