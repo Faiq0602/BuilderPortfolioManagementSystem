@@ -27,9 +27,6 @@ It centralizes projects, budgets, timelines, and document metadata using a clean
 The Builder Portfolio Management System (BPMS) helps construction teams track projects from initiation through completion.  
 It provides role-based menus, clearly separated layers, and realistic workflows: project creation, status updates, portfolio viewing, budget reporting, and mock document uploads (metadata only).
 
-**Repository:**  
-`https://github.com/Faiq0602/BuilderPortfolioManagementSystem`
-
 ---
 
 ## Features
