@@ -1,7 +1,6 @@
 # Builder Portfolio Management System (BPMS)
 
-A modular Java application for managing construction projects across roles — **Admin**, **Builder**, and **Client**.  
-BPMS centralizes projects, budgets, timelines, and document metadata using a layered architecture (**MVC + Service + DAO**) backed by **PostgreSQL**.
+A modular Java application for managing construction projects across roles — **Admin**, **Builder**, and **Client**. BPMS centralizes projects, budgets, timelines, and document metadata using a layered architecture (**MVC + Service + DAO**) backed by **PostgreSQL**.
 
 This repository contains two versions:
 
@@ -46,15 +45,12 @@ This repository contains two versions:
 - [Monitoring & Profiling](#monitoring--profiling)
 - [Diagrams](#diagrams)
 - [Notes & Limitations](#notes--limitations)
-- [Roadmap](#roadmap)
-- [Contributing](#contributing)
 
 ---
 
 ## Overview
 
-The Builder Portfolio Management System helps construction teams track projects from initiation through completion.  
-It provides role-based menus, clearly separated layers, and realistic workflows: project creation, status updates, portfolio viewing, budget reporting, and mock document uploads (metadata only).
+The Builder Portfolio Management System helps construction teams track projects from initiation through completion. It provides role-based menus, clearly separated layers, and realistic workflows: project creation, status updates, portfolio viewing, budget reporting, and mock document uploads (metadata only).
 
 - **v1** focuses on clean architecture and core CRUD workflows.  
 - **v2** adds a concurrency layer for safe multi-user access and performance under parallel workloads.
@@ -63,82 +59,76 @@ It provides role-based menus, clearly separated layers, and realistic workflows:
 
 ## Repository Structure
 
-```text
+```
 BuilderPortfolioManagementSystem/
 ├── v1/                 # Legacy single-threaded implementation
 │   └── src/...
 └── v2/                 # Concurrency-enabled implementation (recommended)
     └── src/...
-Choose a Version
-Use v1 if you need a minimal, single-threaded reference or want to study the core architecture without concurrency concerns.
+```
 
-Use v2 for real-world scenarios with multiple simultaneous users, safer updates, and better performance under load.
+---
 
-Features
-Common (v1 and v2)
-Role-based access: Admin, Builder, Client
+## Choose a Version
 
-Project lifecycle: add, update, delete, list
+Use `v1` if you need a minimal, single-threaded reference or want to study the core architecture without concurrency concerns.
 
-Portfolio views: builder-specific, client-specific, and admin-wide
+Use `v2` for real-world scenarios with multiple simultaneous users, safer updates, and better performance under load.
 
-Budget reporting: planned vs. used, variance, health classification
+---
 
-Timeline visualization: text-based Gantt when status is IN_PROGRESS or COMPLETED
+## Features
 
-Document management: mock “file upload” by storing document metadata only
+### Common (v1 and v2)
 
-Clean layering for maintainability and testing
+- Role-based access: Admin, Builder, Client
+- Project lifecycle: add, update, delete, list
+- Portfolio views: builder-specific, client-specific, and admin-wide
+- Budget reporting: planned vs. used, variance, health classification
+- Timeline visualization: text-based Gantt when status is IN_PROGRESS or COMPLETED
+- Document management: mock “file upload” by storing document metadata only
+- Clean layering for maintainability and testing
 
-Additional in v2
-Per-project read/write locks via a lock registry
+### Additional in v2
 
-Optimistic version checks to prevent stale writes
+- Per-project read/write locks via a lock registry
+- Optimistic version checks to prevent stale writes
+- Thread-safe cache of project snapshots
+- Background task manager with fixed and scheduled executors
+- Parallel portfolio report generation
+- Structured logging around lock waits, retries, and durations
+- Console concurrency demo to visualize background work
 
-Thread-safe cache of project snapshots
+---
 
-Background task manager with fixed and scheduled executors
+## Architecture
 
-Parallel portfolio report generation
-
-Structured logging around lock waits, retries, and durations
-
-Console concurrency demo to visualize background work
-
-Architecture
 Pattern: MVC (controllers) + Service (business logic) + DAO (persistence) + Model (entities/DTOs) + Util (+ Concurrency in v2)
 
-Controllers: console menus and input handling
-AdminController, BuilderController, ClientController
+- Controllers: console menus and input handling (AdminController, BuilderController, ClientController)
+- Services: validation, orchestration, defaults (UserServiceImpl, ProjectServiceImpl, DocumentServiceImpl, ReportServiceImpl)
+- DAOs: JDBC CRUD, isolated SQL via DBConnectionUtil (UserDAOImpl, ProjectDAOImpl, DocumentDAOImpl)
+- Models/DTOs: User, Project, Document, BudgetReport
+- Utilities: DBConnectionUtil, BudgetUtil, StatusConstants, GanttChartUtil
+- Concurrency (v2): LockRegistry, BackgroundTaskManager, ProjectCache
 
-Services: validation, orchestration, defaults (e.g., status)
-UserServiceImpl, ProjectServiceImpl, DocumentServiceImpl, ReportServiceImpl
+---
 
-DAOs: JDBC CRUD, isolated SQL via DBConnectionUtil
-UserDAOImpl, ProjectDAOImpl, DocumentDAOImpl
+## Tech Stack
 
-Models/DTOs: User, Project, Document, BudgetReport
+- Java 17
+- PostgreSQL
+- JDBC (via DBConnectionUtil)
+- Logging: java.util.logging (v1) / SLF4J or JUL-compatible (v2)
+- IDE/Build: IntelliJ IDEA, Maven
 
-Utilities: DBConnectionUtil, BudgetUtil, StatusConstants, GanttChartUtil
+---
 
-Concurrency (v2): LockRegistry, BackgroundTaskManager, ProjectCache
+## Project Structure
 
-Tech Stack
-Java 17
-
-PostgreSQL
-
-JDBC (via DBConnectionUtil)
-
-Logging: java.util.logging (v1) / SLF4J or JUL-compatible (v2)
-
-IDE/Build: IntelliJ IDEA, Maven
-
-Project Structure
 Example layout (v2 shown; v1 is similar without the concurrent package):
 
-text
-Copy code
+```
 src/
   main/
     java/
@@ -181,10 +171,15 @@ src/
   test/
     java/
       ... (unit and concurrency tests in v2)
-Database Schema
-Common schema (v1)
-sql
-Copy code
+```
+
+---
+
+## Database Schema
+
+### Common schema (v1)
+
+```sql
 CREATE DATABASE builder_portfolio_db;
 \c builder_portfolio_db;
 
@@ -217,122 +212,133 @@ CREATE TABLE documents (
   uploaded_by INT REFERENCES users(id),
   upload_date DATE
 );
-Concurrency addition (v2)
-sql
-Copy code
+```
+
+### Concurrency addition (v2)
+
+```sql
 ALTER TABLE projects
   ADD COLUMN IF NOT EXISTS version INT NOT NULL DEFAULT 0;  -- for optimistic locking
-Relationships
-User (builder) → Projects (1:N)
+```
 
-User (client) → Projects (1:N)
+### Relationships
 
-Project → Documents (1:N)
+- User (builder) → Projects (1:N)
+- User (client) → Projects (1:N)
+- Project → Documents (1:N)
 
-Setup
-Prerequisites
-Java 17+
+---
 
-PostgreSQL running locally
+## Setup
 
-IntelliJ IDEA (recommended)
+### Prerequisites
 
-Database
-Create the database and tables using the SQL above.
+- Java 17+
+- PostgreSQL running locally
+- IntelliJ IDEA (recommended)
 
-For v2, ensure the version column exists on projects.
+### Database
 
-Configuration
-Configure DB connection (via a config.properties read by DBConnectionUtil, or inline constants in DBConnectionUtil):
+Create the database and tables using the SQL above. For v2, ensure the `version` column exists on `projects`.
 
-properties
-Copy code
+---
+
+## Configuration
+
+Configure DB connection (via a `config.properties` read by `DBConnectionUtil`, or inline constants in `DBConnectionUtil`):
+
+properties file example:
+
+```
 jdbc.url=jdbc:postgresql://localhost:5432/builder_portfolio_db
 jdbc.username=postgres
 jdbc.password=your_password
-If you use a minimal config.properties, you can also store them as plain lines:
+```
 
-bash
-Copy code
+Alternatively, a minimal `config.properties` can be plain lines:
+
+```
 jdbc:postgresql://localhost:5432/builder_portfolio_db
 postgres
 your_password
-Build and Run
-IntelliJ IDEA
-Open the project (v1 or v2 subfolder) as a Maven project.
+```
 
-Ensure the database is created and schema applied.
+---
 
-Run com.builder.portfolio.Main.
+## Build and Run
 
-Command Line (Maven)
-bash
-Copy code
-# From v1/ or v2/ directory
+### IntelliJ IDEA
+
+1. Open the project (select `v1/` or `v2/`) as a Maven project.
+2. Ensure the database is created and schema applied.
+3. Run `com.builder.portfolio.Main`.
+
+### Command Line (Maven)
+
+From the `v1/` or `v2/` directory:
+
+```bash
 mvn -q -DskipTests package
 java -cp target/<artifact-name>.jar com.builder.portfolio.Main
-Usage by Role
-Admin
-Register users
+```
 
-List users
+---
 
-Delete users
+## Usage by Role
 
-View all projects
+### Admin
 
-Builder
-Add project (status defaults to UPCOMING if omitted)
+- Register users
+- List users
+- Delete users
+- View all projects
 
-Update project (status, budget, dates)
+### Builder
 
-Delete own project
+- Add project (status defaults to `UPCOMING` if omitted)
+- Update project (status, budget, dates)
+- Delete own project
+- View own projects (portfolio)
+- Add document metadata (mock upload)
+- View budget report (variance and health)
+- View simple Gantt when status is `IN_PROGRESS` or `COMPLETED`
 
-View own projects (portfolio)
+### Client
 
-Add document metadata (mock upload)
+- View assigned projects
 
-View budget report (variance and health)
+---
 
-View simple Gantt when status is IN_PROGRESS or COMPLETED
+## Concurrency & Multithreading (v2)
 
-Client
-View assigned projects
+### Objectives
 
-Concurrency & Multithreading (v2)
-Objectives
-Prevent lost updates and race conditions under concurrent edits.
+- Prevent lost updates and race conditions under concurrent edits.
+- Improve responsiveness by offloading heavy work to background executors.
+- Provide predictable, observable behavior under load.
 
-Improve responsiveness by offloading heavy work to background executors.
+### Design
 
-Provide predictable, observable behavior under load.
+- Per-project coordination: `LockRegistry` supplies a `ReadWriteLock` per project. Readers use read lock; mutating actions acquire the write lock.
+- Optimistic versioning: DAO updates guard on `WHERE id=? AND version=?` and increment version on success; service retries on conflict.
+- Document uploads: Routed via `ProjectService.uploadDocument`, reusing the same write lock and logging timing.
+- Caching: `ProjectCache` keeps thread-safe, immutable snapshots for fast reads.
+- Background execution: `BackgroundTaskManager` provides a fixed thread pool and a scheduler, with graceful shutdown.
+- Parallel reporting: `ReportServiceImpl.generatePortfolioReportParallel` fans out per-project computations using `CompletableFuture` with timeouts.
+- Observability: Structured logs around lock waits, retries, and durations for profiling and diagnosis.
+- Deadlock discipline: Acquire multiple project locks in ascending `projectId` order.
 
-Design
-Per-project coordination: LockRegistry supplies a ReadWriteLock per project. Readers use read lock; mutating actions acquire the write lock.
+### Example optimistic update (SQL)
 
-Optimistic versioning: DAO updates guard on WHERE id=? AND version=? and increment version on success; service retries on conflict.
-
-Document uploads: Routed via ProjectService.uploadDocument, reusing the same write lock and logging timing.
-
-Caching: ProjectCache keeps thread-safe, immutable snapshots for fast reads.
-
-Background execution: BackgroundTaskManager provides a fixed thread pool and a scheduler, with graceful shutdown.
-
-Parallel reporting: ReportServiceImpl.generatePortfolioReportParallel fans out per-project computations using CompletableFuture with timeouts.
-
-Observability: Structured logs around lock waits, retries, and durations for profiling and diagnosis.
-
-Deadlock discipline: Acquire multiple project locks in ascending projectId order.
-
-Example optimistic update (SQL)
-sql
-Copy code
+```sql
 UPDATE projects
 SET status = ?, version = version + 1
 WHERE id = ? AND version = ?;
-Service-level retry sketch
-java
-Copy code
+```
+
+### Service-level retry sketch
+
+```java
 boolean updated = false;
 int attempts = 0;
 
@@ -349,93 +355,84 @@ while (!updated && attempts++ < 3) {
 if (!updated) {
   throw new ConcurrentModificationException("Concurrent modification detected");
 }
-Console concurrency demo
+```
+
+### Console concurrency demo
+
 The Builder menu includes a demo that kicks off asynchronous mock jobs so users can observe concurrent progress in real time (lock acquisition, retries, and completion).
 
-Testing
+---
+
+## Testing
+
 Unit tests: CRUD and service-level validation.
 
 Concurrency tests (v2):
 
-ProjectConcurrencyTest — concurrent status/budget updates; verifies retries and final state
+- `ProjectConcurrencyTest` — concurrent status/budget updates; verifies retries and final state
+- `DocumentUploadConcurrencyTest` — parallel metadata inserts on the same project; verifies serialization
+- `ParallelReportPerfTest` — compares sequential vs. parallel reporting
 
-DocumentUploadConcurrencyTest — parallel metadata inserts on the same project; verifies serialization
+Run tests:
 
-ParallelReportPerfTest — compares sequential vs. parallel reporting
-
-Run:
-
-bash
-Copy code
+```bash
 mvn -q -DskipTests=false test
-Monitoring & Profiling
+```
+
+---
+
+## Monitoring & Profiling
+
 The following tools ship with the JDK (no extra installs required):
 
-JConsole (GUI): Live heap, GC, threads
+- JConsole (GUI): Live heap, GC, threads
 
-bash
-Copy code
+```bash
 jconsole
-jstat (CLI): GC/heap stats sampling
+```
 
-bash
-Copy code
+- jstat (CLI): GC/heap stats sampling
+
+```bash
 jstat -gcutil <PID> 1000 10
-jcmd (CLI): Heap info, thread dumps, flags
+```
 
-bash
-Copy code
+- jcmd (CLI): Heap info, thread dumps, flags
+
+```bash
 jcmd <PID> GC.heap_info
 jcmd <PID> Thread.print
-Java Flight Recorder (headless): Quick profile capture
+```
 
-bash
-Copy code
+- Java Flight Recorder (headless): Quick profile capture
+
+```bash
 jcmd <PID> JFR.start name=quick settings=profile duration=20s filename=recording.jfr
-Diagrams
+```
+
+---
+
+## Diagrams
+
 Include or accompany this repository with:
 
-ER Diagram — database relationships
+- ER Diagram — database relationships
+- Class Diagram — layered architecture
+- Sequence Diagrams — Add Project, Update Status, View Portfolio
+- Workflow Diagrams — Login/Register, Project Management, Budget & Timeline Tracking
 
-Class Diagram — layered architecture
 
-Sequence Diagrams — Add Project, Update Status, View Portfolio
+---
 
-Workflow Diagrams — Login/Register, Project Management, Budget & Timeline Tracking
+## Notes & Limitations
 
-If you keep PlantUML sources, they can be rendered with any PlantUML-compatible tool. For submissions, export to UMLDiagrams.pdf.
+- Passwords are stored in plaintext for demonstration (use BCrypt/Argon2 in production).
+- Document “uploads” are mocked: only metadata is stored, not actual files.
+- The console UI is minimal by design to highlight architecture and workflows.
+- v2 introduces an additional `version` column and lock/executor components that require careful lifecycle management.
 
-Notes & Limitations
-Passwords are stored in plaintext for demonstration (use BCrypt/Argon2 in production).
 
-Document “uploads” are mocked: only metadata is stored, not actual files.
+---
 
-The console UI is minimal by design to highlight architecture and workflows.
 
-v2 introduces an additional version column and lock/executor components that require careful lifecycle management.
-
-Roadmap
-Password hashing and stricter role-based authorization
-
-Spring Boot REST API; JPA with @Version for optimistic locking
-
-Real file uploads with storage integration and RBAC
-
-Rich Gantt visualization and milestones
-
-Metrics and tracing with Micrometer/Prometheus/OpenTelemetry
-
-Caffeine or Redis caching with size/TTL policies
-
-CI pipeline with unit and concurrency tests
-
-Contributing
-Fork the repository.
-
-Choose a base (v1 or v2) and create a feature branch.
-
-Commit with clear messages; include tests when applicable.
-
-Open a pull request with a concise description and rationale.
-
-Quick start: Clone and open either v1/ or v2/ as a Maven project in IntelliJ, apply the schema, configure DB credentials, and run com.builder.portfolio.Main.
+Quick start: Clone and open either `v1/` or `v2/` as a Maven project in IntelliJ, apply the schema, configure DB credentials, and run `com.builder.portfolio.Main`.
